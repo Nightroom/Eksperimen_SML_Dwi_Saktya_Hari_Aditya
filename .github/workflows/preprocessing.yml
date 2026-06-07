@@ -1,0 +1,36 @@
+name: Automated Preprocessing
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  preprocessing:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python 3.12.7
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12.7'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas numpy scikit-learn
+
+      - name: Run preprocessing
+        run: |
+          cd preprocessing
+          python automate_Dwi-Saktya-Hari-Aditya.py --input ../Titanic-Dataset.csv --output titanic_preprocessing
+
+      - name: Upload preprocessed dataset as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: titanic_preprocessing
+          path: preprocessing/titanic_preprocessing/
