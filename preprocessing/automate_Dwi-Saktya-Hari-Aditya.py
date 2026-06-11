@@ -28,6 +28,16 @@ def handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     print(f"[INFO] Missing values setelah handling: {df.isnull().sum().sum()}")
     return df
 
+def handle_outliers(df: pd.DataFrame) -> pd.DataFrame:
+    """Menangani outlier pada kolom Fare menggunakan IQR clipping."""
+    Q1 = df['Fare'].quantile(0.25)
+    Q3 = df['Fare'].quantile(0.75)
+    IQR = Q3 - Q1
+    lower = Q1 - 1.5 * IQR
+    upper = Q3 + 1.5 * IQR
+    df['Fare'] = df['Fare'].clip(lower=lower, upper=upper)
+    print(f"[INFO] Outlier clipping selesai pada kolom: Fare (lower={lower:.2f}, upper={upper:.2f})")
+    return df
 
 def encode_categorical(df: pd.DataFrame) -> pd.DataFrame:
     """Melakukan label encoding pada kolom kategorikal."""
@@ -72,10 +82,10 @@ def split_and_save(df: pd.DataFrame, output_dir: str) -> None:
 
 
 def preprocess(input_path: str, output_dir: str) -> pd.DataFrame:
-    """Pipeline preprocessing utama."""
     df = load_data(input_path)
     df = drop_irrelevant_columns(df)
     df = handle_missing_values(df)
+    df = handle_outliers(df)      # tambah di sini
     df = encode_categorical(df)
     df = scale_features(df)
     split_and_save(df, output_dir)
